@@ -17,7 +17,9 @@
         "source": "https://github.com/Lodin/FileTransfer"
     },
     "require": {
-        "php":">=5.3.0"
+        "php":">=5.3.0",
+        "lodin/simple-file": ">=0.1.0",
+        "lodin/mime-list": ">=0.1.0"
     },
     "minimum-stability": "dev"
 }
