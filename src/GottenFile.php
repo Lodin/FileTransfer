@@ -4,7 +4,7 @@ namespace FileTransfer;
 
 class GottenFile
 {
-    protected $url = '';
+    protected $_url = '';
     protected $_transfer;
 
     public function __construct(Transfer $transfer, $url = '')
@@ -12,9 +12,9 @@ class GottenFile
         $this->_transfer = $transfer;
 
         if (!empty($url) && realpath($url)) {
-            $this->url = $url;
+            $this->_url = $url;
         } elseif (!is_null($this->_transfer->emptyFileReplacement)) {
-            $this->url = $this->_transfer->emptyFileReplacement;
+            $this->_url = $this->_transfer->emptyFileReplacement;
         }
     }
 
@@ -22,23 +22,23 @@ class GottenFile
     {
         switch ($name) {
             case 'relativeUrl':
-                return $this->_transfer->relativePath."/$url";
+                return $this->_transfer->relativePath."/{$this->_url}";
                 break;
             case 'absoluteUrl':
-                return $this->_transfer->absolutePath."/$url";
+                return $this->_transfer->absolutePath."/{$this->_url}";
                 break;
             default:
                 throw new FileTransferException('Class `GottenFile` does not have'
-                    ." variable with name `$name`");
+                    ." property named `$name`");
         }
     }
 
     public function exists()
     {
         if ($this->hasReplacement()) {
-            return $this->url !== $this->_transfer->emptyFileReplacement;
+            return $this->_url !== $this->_transfer->emptyFileReplacement;
         } else {
-            return !empty($this->url);
+            return !empty($this->_url);
         }
     }
 

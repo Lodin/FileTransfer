@@ -8,11 +8,12 @@ class Transfer
     protected $relativePath = '';
     protected $dir = '';
     protected $allowedExtensions = array();
-    protected $handlers = array();
+    protected $types = array();
     protected $filesInFolder = 50;
     protected $mimeCacheFile = '';
     protected $emptyFileReplacement = null;
     protected $gottenFileClass = 'GottenFile';
+    protected $logFile = null;
 
     protected $uploader;
     protected $getter;
@@ -47,21 +48,21 @@ class Transfer
             $this->allowedExtensions = $settings['allowedExtensions'];
         }
 
-        if (isset($settings['handlers'])) {
-            if (!is_array($settings['handlers'])) {
-                throw new FileTransferException('Parameter `handlers` should be array');
+        if (isset($settings['types'])) {
+            if (!is_array($settings['types'])) {
+                throw new FileTransferException('Parameter `types` should be array');
             }
 
-            foreach( $settings['handlers'] as $handler => $action )
+            foreach( $settings['types'] as $type => $action )
             {
-                if(!is_string($handler) || !is_callable($action))
-                    throw new FileTransferException('Property `handlers` should'
+                if(!is_string($type) || !is_callable($action))
+                    throw new FileTransferException('Property `types` should'
                         .' be an array(string => callable)');
             }
 
-            $this->handlers = $settings['handlers'];
+            $this->types = $settings['types'];
         } else {
-            throw new FileTransferException('Parameter `handlers` should be defined');
+            throw new FileTransferException('Parameter `types` should be defined');
         }
 
         if (isset($settings['filesInFolder'])) {
@@ -81,7 +82,7 @@ class Transfer
         if (isset($settings['mimeCacheFile'])) {
             if (!is_string($settings['mimeCacheFile'])) {
                 throw new FileTransferException('Parameter `mimeCacheFile`'
-                    .' should be string');
+                    .' should be a string');
             }
 
             $this->mimeCacheFile = $settings['mimeCacheFile'];
@@ -90,7 +91,8 @@ class Transfer
                 .' be defined');
         }
 
-        if (isset($settings['emptyFileReplacement'])) {
+        if (isset($settings['emptyFileReplacement'])
+            && $this->emptyFileReplacement !== $settings['emptyFileReplacement']) {
             if (!realpath($settings['emptyFileReplacement'])) {
                 throw new FileTransferException("File `{$settings['emptyFileReplacement']}`"
                     .' does not exist');
@@ -100,11 +102,20 @@ class Transfer
         }
 
         if(isset($settings['gottenFileClass'])) {
-            if(!class_exists($settings['gottenFileClass'])))
+            if(!class_exists($settings['gottenFileClass']))
                 throw new FileTransferException("Class with name"
                     ." `{$settings['gottenFileClass']}` does not find");
 
             $this->gottenFileClass = $settings['gottenFileClass'];
+        }
+        
+        if(isset($settings['logFile']) && $this->logFile !== $settings['logFile']) {
+            if(!file_exists($settings['logFile'])) {
+                throw new FileTransferException("File {$settings['logFile']}"
+                . ' does not exist');
+            }
+            
+            $this->logFile = $settings['logFile'];
         }
 
         $this->uploader = new Uploader($this);
@@ -120,9 +131,9 @@ class Transfer
         return $this->$name;
     }
 
-    public function upload(array $files, $subdir, array $needSizes)
+    public function upload(array $files, $subdir, array $userTypes)
     {
-        $this->uploader->run($files, $subdir, $needSize);
+        $this->uploader->run($files, $subdir, $userTypes);
     }
 
     public function get($id, $subdir, $size, $isAbsolute = false)
@@ -130,8 +141,8 @@ class Transfer
         $this->getter->run($id, $subdir, $size, $isAbsolute);
     }
 
-    public function allowedSizes()
+    public function allowedTypes()
     {
-        return array_keys($this->sizes);
+        return array_keys($this->types);
     }
 }

@@ -2,9 +2,8 @@
 
 namespace FileTransfer;
 
-use SimpleFile;
-use MimeList;
-use abeautifulsite\SimpleImage;
+use \SimpleFile;
+use \MimeList;
 
 class TransferingFile extends SimpleFile
 {
@@ -23,11 +22,21 @@ class TransferingFile extends SimpleFile
         return $isExtensionsValid && $isMimetypesValid;
     }
 
-    public function moveHandled($fname, $action)
+    public function handle($fname, $action)
     {
         try {
             $action($this, $fname);
         } catch (Exception $e) {
+            if(!is_null($this->_transfer->logFile)) {
+                $f = fopen($this->_transfer->logFile, 'a');
+                fwrite($f, '[' . date('Y-m-d H:i:s') . '] in ' . $e->getFile()
+                    .  ' on line ' . $e->getLine() 
+                    . ': ' . $e->getMessage()
+                    . "\n" . $e->getTrace() . "\n\n"
+                );
+                fclose($f);
+            }
+                
             return false;
         }
 
@@ -42,7 +51,7 @@ class TransferingFile extends SimpleFile
         );
 
         foreach ($this->_transfer->allowedExtensions as $extension) {
-            $type = mimeList->guess($extension);
+            $type = $mimeList->guess($extension);
 
             if ($type !== null) {
                 $mimelist[] = $type;

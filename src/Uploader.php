@@ -11,13 +11,13 @@ class Uploader
         $this->_transfer = $transfer;
     }
 
-    public function run(array $files, $subdir, array $userHandlers)
+    public function run(array $unhandledFiles, $subdir, array $userTypes)
     {
-        $this->checkData($userHandlers);
+        $this->checkData($userTypes);
 
         $info = array();
 
-        $files = $this->disassemble($files);
+        $files = $this->disassemble($unhandledFiles);
 
         // if there no allowed to upload files, function returns null;
         $hasAllowed = false;
@@ -38,10 +38,10 @@ class Uploader
             $info[$file->id]['name'] = $filename;
             $info[$file->id]['ext'] = pathinfo($file->name, PATHINFO_EXTENSION);
 
-            foreach ($userHandlers as $handler => $action) {
-                $fname = "$dir/$filename"."_$handler.".pathinfo($file->name, PATHINFO_EXTENSION);
+            foreach ($userTypes as $type) {
+                $fname = "$dir/$filename"."_$type.".pathinfo($file->name, PATHINFO_EXTENSION);
 
-                if (!$file->moveHandled($fname, $this->_transfer->handlers[$handler])) {
+                if (!$file->handle($fname, $this->_transfer->types[$type])) {
                     unset($info[$file->id]);
                 }
             }
@@ -119,16 +119,21 @@ class Uploader
         return $disassembledFiles;
     }
 
-    protected function checkData($userHandlers)
+    protected function checkData($userTypes)
     {
-        if (empty($userHandlers)) {
+        if (empty($userTypes)) {
             throw new FileTransferException('Upload method should receive at'
-                .' least one handler in `userHandlers` attribute');
+                .' least one type in `userTypes` attribute');
         }
 
-        foreach ($userHandlers as $handler => $action) {
-            if (!isset($this->_transfer->handlers[$handler])) {
-                throw new FileTransferException("Handler `$handler` is not defined");
+        foreach ($userTypes as $type) {
+            if (!is_string($type)) {
+                throw new FileTransferException('All types in `userTypes`'
+                    . ' list should be a string');
+            }
+            
+            if (!isset($this->_transfer->types[$type])) {
+                throw new FileTransferException("Type `$type` is not defined");
             }
         }
     }
