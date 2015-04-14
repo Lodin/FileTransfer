@@ -21,5 +21,10 @@
         "lodin/simple-file": ">=0.1.0",
         "lodin/mime-list": ">=0.1.0"
     },
+    "autoload"    : {
+		"psr-0" : {
+			"FileTransfer" : "src/"
+		}
+	},
     "minimum-stability": "dev"
 }
