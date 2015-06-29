@@ -1,19 +1,31 @@
 <?php
 
-namespace FileTransfer;
+namespace FileTransfer\Wrappers;
 
+use FileTransfer\Transfer;
 use \SimpleFile;
 use \MimeList;
 
+/**
+ * Implements wrapper around file uploading to server
+ */
 class TransferingFile extends SimpleFile
 {
     protected $_transfer;
 
+    /**
+     * Adds controller to file instance
+     * @param Transfer $transfer
+     */
     public function setOwner(Transfer $transfer)
     {
         $this->_transfer = $transfer;
     }
 
+    /**
+     * Checks mimetypes and file extensions to be allowed to uploading
+     * @return boolean
+     */
     public function validate()
     {
         $isExtensionsValid = $this->checkExtensions();
@@ -22,6 +34,14 @@ class TransferingFile extends SimpleFile
         return $isExtensionsValid && $isMimetypesValid;
     }
 
+    /**
+     * Applies handler to the file. If something go wrong, returns false and
+     * writes details to log file if set
+     * 
+     * @param string $fname file destination name
+     * @param callable $action handler action
+     * @return boolean operation result
+     */
     public function handle($fname, $action)
     {
         try {
@@ -43,6 +63,10 @@ class TransferingFile extends SimpleFile
         return true;
     }
 
+    /**
+     * Check if this file's mimetype is allowed
+     * @return boolean
+     */
     protected function checkMimeTypes()
     {
         $mimeList = new MimeList(
@@ -77,6 +101,10 @@ class TransferingFile extends SimpleFile
         return true;
     }
 
+    /**
+     * Checks if this file's extension is allowed
+     * @return boolean
+     */
     protected function checkExtensions()
     {
         return in_array(

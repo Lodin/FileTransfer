@@ -2,18 +2,38 @@
 
 namespace FileTransfer;
 
+use FileTransfer\Wrappers\UploadedFileInfo;
+use FileTransfer\Wrappers\TransferingFile;
+
+/**
+ * Implemets file uploading action
+ */
 class Uploader
 {
     protected $_transfer;
 
+    /**
+     * Creates a new implementation of Uploader class
+     * @param \FileTransfer\Transfer $transfer
+     */
     public function __construct(Transfer $transfer)
     {
         $this->_transfer = $transfer;
     }
 
-    public function run(array $unhandledFiles, $subdir, array $userTypes)
+    /**
+     * Starts file uploading.
+     * 
+     * @param array $unhandledFiles $_FILES array
+     * @param string $subdir subdirectory in the uploading files directory to
+     *                       separate uploading files each from other
+     * @param array $userHandlers list of handler names
+     * @return array|null if there are allowed files returns array with
+     *                    uploaded files info
+     */
+    public function run(array $unhandledFiles, $subdir, array $userHandlers)
     {
-        $this->checkData($userTypes);
+        $this->checkData($userHandlers);
 
         $info = array();
 
@@ -30,21 +50,29 @@ class Uploader
             $hasAllowed = true;
 
             $dir = $this->buildPath($subdir);
-
-            $info[$file->id]['sub'] = $this->subdir;
-            $info[$file->id]['part'] = basename($dir);
-
+            
             $filename = basename($dir).'_'.md5(microtime());
-            $info[$file->id]['name'] = $filename;
-            $info[$file->id]['ext'] = pathinfo($file->name, PATHINFO_EXTENSION);
 
-            foreach ($userTypes as $type) {
-                $fname = "$dir/$filename"."_$type.".pathinfo($file->name, PATHINFO_EXTENSION);
+            // TODO: improve algorithm if no handlers is set (now even
+            // move_uploaded_files is not provided)
+            $isHandled = true;
+            foreach ($userHandlers as $handler) {
+                $fname = "$dir/$filename"."_$handler.".pathinfo($file->name, PATHINFO_EXTENSION);
 
-                if (!$file->handle($fname, $this->_transfer->types[$type])) {
-                    unset($info[$file->id]);
+                if (!$file->handle($fname, $this->_transfer->handlers[$handler])) {
+                    $isHandled = false;
                 }
             }
+            
+            if(!$isHandled)
+                continue;
+            
+            $info[$file->id] = new UploadedFileInfo(
+                $this->subdir,
+                basename($dir),
+                $filename,
+                pathinfo($file->name, PATHINFO_EXTENSION)
+            );
         }
 
         if ($hasAllowed) {
@@ -54,6 +82,15 @@ class Uploader
         }
     }
 
+    /*
+     * Creates a path to upload file. It looks like:
+     * /images/avatars/1/
+     *  ^        ^     ^
+     * dir    subdir   part (max files limited by $filesInFolder parameter)
+     * 
+     * @param string $subdir subdirectory name
+     * @return created path
+     */
     protected function buildPath($subdir)
     {
         function countDir($dir)
@@ -107,7 +144,12 @@ class Uploader
 
         return $result;
     }
-
+    
+    /*
+     * Disassembles $_FILES array to TransferingFile instances 
+     * @param array $files
+     * @return array disassembled files array
+     */
     protected function disassemble($files)
     {
         $disassembledFiles = TransferingFile::disassemble($files, true);
@@ -119,21 +161,27 @@ class Uploader
         return $disassembledFiles;
     }
 
-    protected function checkData($userTypes)
+    /*
+     * Checks $userHandlers
+     * @param array $userHandlers
+     * @throws FileTransferException if checking is gone wrong
+     */
+    protected function checkData($userHandlers)
     {
-        if (empty($userTypes)) {
+        // TODO: remove and make default handler to move uploaded files 
+        if (empty($userHandlers)) {
             throw new FileTransferException('Upload method should receive at'
-                .' least one type in `userTypes` attribute');
+                .' least one handler in `userHandlers` attribute');
         }
 
-        foreach ($userTypes as $type) {
-            if (!is_string($type)) {
-                throw new FileTransferException('All types in `userTypes`'
-                    . ' list should be a string');
+        foreach ($userHandlers as $handler) {
+            if (!is_string($handler)) {
+                throw new FileTransferException('All handlers names in'
+                    . ' `userHandlers` list should be a string');
             }
             
-            if (!isset($this->_transfer->types[$type])) {
-                throw new FileTransferException("Type `$type` is not defined");
+            if (!isset($this->_transfer->handlers[$handler])) {
+                throw new FileTransferException("Handler `$handler` is not defined");
             }
         }
     }
