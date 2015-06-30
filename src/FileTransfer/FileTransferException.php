@@ -3,7 +3,7 @@
 namespace FileTransfer;
 
 /**
- * Implements main FileTransfer exception
+ * Implements main FileTransfer exception.
  */
 class FileTransferException extends Exception
 {

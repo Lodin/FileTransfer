@@ -1,37 +1,41 @@
 <?php
 
-namespace FileTransfer\Wrappers;
+namespace FileTransfer\wrappers;
 
 class UploadedFileInfo
 {
     /**
-     * Subdirectory which separates files with different purposes
+     * Subdirectory which separates files with different purposes.
+     *
      * @var string
      */
     public $subdir = '';
-    
+
     /**
      * Subdirectory part which is limited by $filesInFolder parameter in
-     * Transfer class 
-     * @var string 
+     * Transfer class.
+     *
+     * @var string
      */
     public $part = '';
-    
+
     /**
-     * File name
-     * @var string 
+     * File name.
+     *
+     * @var string
      */
     public $name = '';
-    
+
     /**
-     * File extension
+     * File extension.
+     *
      * @var string
      */
     public $ext = '';
-    
+
     /**
-     * Creates new instance of UploadedFileInfo class
-     * 
+     * Creates new instance of UploadedFileInfo class.
+     *
      * @param string $subdir
      * @param string $part
      * @param string $name

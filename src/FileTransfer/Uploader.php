@@ -6,14 +6,15 @@ use FileTransfer\Wrappers\UploadedFileInfo;
 use FileTransfer\Wrappers\TransferingFile;
 
 /**
- * Implemets file uploading action
+ * Implemets file uploading action.
  */
 class Uploader
 {
     protected $_transfer;
 
     /**
-     * Creates a new implementation of Uploader class
+     * Creates a new implementation of Uploader class.
+     *
      * @param \FileTransfer\Transfer $transfer
      */
     public function __construct(Transfer $transfer)
@@ -23,11 +24,12 @@ class Uploader
 
     /**
      * Starts file uploading.
-     * 
-     * @param array $unhandledFiles $_FILES array
-     * @param string $subdir subdirectory in the uploading files directory to
-     *                       separate uploading files each from other
-     * @param array $userHandlers list of handler names
+     *
+     * @param array  $unhandledFiles $_FILES array
+     * @param string $subdir         subdirectory in the uploading files directory to
+     *                               separate uploading files each from other
+     * @param array  $userHandlers   list of handler names
+     *
      * @return array|null if there are allowed files returns array with
      *                    uploaded files info
      */
@@ -50,7 +52,7 @@ class Uploader
             $hasAllowed = true;
 
             $dir = $this->buildPath($subdir);
-            
+
             $filename = basename($dir).'_'.md5(microtime());
 
             // TODO: improve algorithm if no handlers is set (now even
@@ -63,10 +65,11 @@ class Uploader
                     $isHandled = false;
                 }
             }
-            
-            if(!$isHandled)
+
+            if (!$isHandled) {
                 continue;
-            
+            }
+
             $info[$file->id] = new UploadedFileInfo(
                 $this->subdir,
                 basename($dir),
@@ -87,7 +90,7 @@ class Uploader
      * /images/avatars/1/
      *  ^        ^     ^
      * dir    subdir   part (max files limited by $filesInFolder parameter)
-     * 
+     *
      * @param string $subdir subdirectory name
      * @return created path
      */
@@ -144,9 +147,9 @@ class Uploader
 
         return $result;
     }
-    
+
     /*
-     * Disassembles $_FILES array to TransferingFile instances 
+     * Disassembles $_FILES array to TransferingFile instances
      * @param array $files
      * @return array disassembled files array
      */
@@ -168,7 +171,7 @@ class Uploader
      */
     protected function checkData($userHandlers)
     {
-        // TODO: remove and make default handler to move uploaded files 
+        // TODO: remove and make default handler to move uploaded files
         if (empty($userHandlers)) {
             throw new FileTransferException('Upload method should receive at'
                 .' least one handler in `userHandlers` attribute');
@@ -177,9 +180,9 @@ class Uploader
         foreach ($userHandlers as $handler) {
             if (!is_string($handler)) {
                 throw new FileTransferException('All handlers names in'
-                    . ' `userHandlers` list should be a string');
+                    .' `userHandlers` list should be a string');
             }
-            
+
             if (!isset($this->_transfer->handlers[$handler])) {
                 throw new FileTransferException("Handler `$handler` is not defined");
             }

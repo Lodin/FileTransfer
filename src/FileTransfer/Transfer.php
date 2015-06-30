@@ -3,72 +3,82 @@
 namespace FileTrasfer;
 
 /**
- * Implements common file transfering functional 
+ * Implements common file transfering functional.
  */
 class Transfer
 {
     /**
-     * Site root absolute path
-     * @var string 
+     * Site root absolute path.
+     *
+     * @var string
      */
     protected $absolutePath = '';
-    
+
     /**
-     * Site root relative path
-     * @var string 
+     * Site root relative path.
+     *
+     * @var string
      */
     protected $relativePath = '';
-    
+
     /**
-     * Name of main file directory from site root
-     * @var string 
+     * Name of main file directory from site root.
+     *
+     * @var string
      */
     protected $dir = '';
-    
+
     /**
-     * List of file extensions allowed to upload
-     * @var array 
+     * List of file extensions allowed to upload.
+     *
+     * @var array
      */
     protected $allowedExtensions = array();
-    
+
     /**
      * List of actions to do with file after uploading. Should have next
      * signature: function(SimpleFile $file, string $fname). For keys it is
-     * preferable to be string handler names
-     * @var array 
+     * preferable to be string handler names.
+     *
+     * @var array
      */
     protected $handlers = array();
-    
+
     /**
      * Maximum count of files in single folder. After achieving this step a new
-     * folder will be create
-     * @var integer 
+     * folder will be create.
+     *
+     * @var int
      */
     protected $filesInFolder = 50;
-    
+
     /**
-     * Name of file from site root to cache mime data of MimeList plugin
-     * @var string 
+     * Name of file from site root to cache mime data of MimeList plugin.
+     *
+     * @var string
      */
     protected $mimeCacheFile = '';
-    
+
     /**
      * Name of file returning if requested file does not exist (e.g. image
      * placeholder). System will throw exception if null and requested file
      * does not exist.
-     * @var string 
+     *
+     * @var string
      */
     protected $emptyFileReplacement = null;
-    
+
     /**
      * Name of class extending GottenFile which is a wrapper over file returned
-     * by file getting system
-     * @var string 
+     * by file getting system.
+     *
+     * @var string
      */
     protected $gottenFileClass = 'GottenFile';
-    
+
     /**
-     * Name of file to log errors
+     * Name of file to log errors.
+     *
      * @var string
      */
     protected $logFile = null;
@@ -77,9 +87,11 @@ class Transfer
     protected $getter;
 
     /**
-     * Creates an instance of Transfer class
+     * Creates an instance of Transfer class.
+     *
      * @param array $settings contains list of settings similar to class
-     *                        parameters                      
+     *                        parameters
+     *
      * @throws FileTransferException if some parameters is not set
      */
     public function __contstruct(array $settings)
@@ -117,11 +129,11 @@ class Transfer
                 throw new FileTransferException('Parameter `handlers` should be array');
             }
 
-            foreach($settings['handlers'] as $type => $action)
-            {
-                if(!is_string($type) || !is_callable($action))
+            foreach ($settings['handlers'] as $type => $action) {
+                if (!is_string($type) || !is_callable($action)) {
                     throw new FileTransferException('Property `handlers` should'
                         .' be an array(string => callable)');
+                }
             }
 
             $this->handlers = $settings['handlers'];
@@ -135,9 +147,9 @@ class Transfer
                 .' be integer');
             }
 
-            if( $this->filesInFolder <= 0 ) {
-                throw new FileTransferException( 'At least one file should be'
-                    . ' in folder' );
+            if ($this->filesInFolder <= 0) {
+                throw new FileTransferException('At least one file should be'
+                    .' in folder');
             }
 
             $this->filesInFolder = $settings['filesInFolder'];
@@ -165,20 +177,21 @@ class Transfer
             $this->emptyFileReplacement = realpath($settings['emptyFileReplacement']);
         }
 
-        if(isset($settings['gottenFileClass'])) {
-            if(!class_exists($settings['gottenFileClass']))
-                throw new FileTransferException("Class with name"
+        if (isset($settings['gottenFileClass'])) {
+            if (!class_exists($settings['gottenFileClass'])) {
+                throw new FileTransferException('Class with name'
                     ." `{$settings['gottenFileClass']}` does not find");
+            }
 
             $this->gottenFileClass = $settings['gottenFileClass'];
         }
-        
-        if(isset($settings['logFile']) && $this->logFile !== $settings['logFile']) {
-            if(!file_exists($settings['logFile'])) {
+
+        if (isset($settings['logFile']) && $this->logFile !== $settings['logFile']) {
+            if (!file_exists($settings['logFile'])) {
                 throw new FileTransferException("File {$settings['logFile']}"
-                . ' does not exist');
+                .' does not exist');
             }
-            
+
             $this->logFile = $settings['logFile'];
         }
 
@@ -188,7 +201,7 @@ class Transfer
 
     public function __get($name)
     {
-        if(!isset($this->$name)) {
+        if (!isset($this->$name)) {
             throw new FileTransferException("No property with name `$name` found");
         }
 
@@ -196,12 +209,12 @@ class Transfer
     }
 
     /**
-     * Starts file uploading
-     * 
-     * @param array $files $_FILES array
-     * @param string $subdir subdirectory in the uploading files directory to
-     *                       separate uploading files each from other 
-     * @param array $userHandlers list of handlers names
+     * Starts file uploading.
+     *
+     * @param array  $files        $_FILES array
+     * @param string $subdir       subdirectory in the uploading files directory to
+     *                             separate uploading files each from other
+     * @param array  $userHandlers list of handlers names
      */
     public function upload(array $files, $subdir, array $userHandlers)
     {
@@ -209,13 +222,13 @@ class Transfer
     }
 
     /**
-     * Returns file by it's ID
-     * 
-     * @param string $id file ID (filename created at upload operation)
-     * @param string $subdir subdirectory in the uploading files directory to
-     *                       separate uploading files each from other 
-     * @param string $handler name of handler applied to file on uploading 
-     * @param boolean $isAbsolute should paths be absolute or relative
+     * Returns file by it's ID.
+     *
+     * @param string $id         file ID (filename created at upload operation)
+     * @param string $subdir     subdirectory in the uploading files directory to
+     *                           separate uploading files each from other
+     * @param string $handler    name of handler applied to file on uploading
+     * @param bool   $isAbsolute should paths be absolute or relative
      */
     public function get($id, $subdir, $size, $isAbsolute = false)
     {
@@ -223,7 +236,8 @@ class Transfer
     }
 
     /**
-     * Returns list of allowed handler names
+     * Returns list of allowed handler names.
+     *
      * @return array
      */
     public function allowedHandlers()

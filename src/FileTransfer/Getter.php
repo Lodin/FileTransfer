@@ -3,7 +3,7 @@
 namespace FileTransfer;
 
 /**
- * Implements file getting system
+ * Implements file getting system.
  */
 class Getter
 {
@@ -11,24 +11,25 @@ class Getter
     protected $_gottenFileClass;
 
     /**
-     * Creates new instance of Getter class
-     * 
+     * Creates new instance of Getter class.
+     *
      * @param Transfer $transfer
-     * @param string $gottenFileClass name of class extending GottenFile
+     * @param string   $gottenFileClass name of class extending GottenFile
+     *
      * @throws FileTransferException if gottenFileClass is not a name of class
      *                               extending GottenFile
      */
     public function __construct(Transfer $transfer, $gottenFileClass)
     {
-        if(!is_subclass_of($gottenFileClass, 'GottenFile'))
+        if (!is_subclass_of($gottenFileClass, 'GottenFile')) {
             throw new FileTransferException("`$gottenFileClass` should be an"
                 .' an instance of `GottenFile`');
+        }
 
         $this->_transfer = $transfer;
         $this->_gottenFileClass = $gottenFileClass;
     }
 
-    
     public function run($id, $subdir, $handlerName)
     {
         $path = "{$this->_transfer->dir}/$subdir/".$this->getDirByFileId($id);

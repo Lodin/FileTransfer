@@ -1,12 +1,12 @@
 <?php
 
-namespace FileTransfer\Wrappers;
+namespace FileTransfer\wrappers;
 
 use FileTransfer\Transfer;
 use FileTransfer\FileTransferException;
 
 /**
- * Implements a wrapper around file uri returned by file getting system
+ * Implements a wrapper around file uri returned by file getting system.
  */
 class GottenFile
 {
@@ -14,9 +14,10 @@ class GottenFile
     protected $_transfer;
 
     /**
-     * Creates new GottenFile instance
+     * Creates new GottenFile instance.
+     *
      * @param Transfer $transfer
-     * @param string $url
+     * @param string   $url
      */
     public function __construct(Transfer $transfer, $url = '')
     {
@@ -45,8 +46,9 @@ class GottenFile
     }
 
     /**
-     * Tests file to be exist
-     * @return boolean
+     * Tests file to be exist.
+     *
+     * @return bool
      */
     public function exists()
     {
@@ -58,7 +60,8 @@ class GottenFile
     }
 
     /**
-     * Removes file
+     * Removes file.
+     *
      * @throws FileTransferException if file to remove does not exist
      */
     public function remove()

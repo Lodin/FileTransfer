@@ -1,20 +1,21 @@
 <?php
 
-namespace FileTransfer\Wrappers;
+namespace FileTransfer\wrappers;
 
 use FileTransfer\Transfer;
-use \SimpleFile;
-use \MimeList;
+use SimpleFile;
+use MimeList;
 
 /**
- * Implements wrapper around file uploading to server
+ * Implements wrapper around file uploading to server.
  */
 class TransferingFile extends SimpleFile
 {
     protected $_transfer;
 
     /**
-     * Adds controller to file instance
+     * Adds controller to file instance.
+     *
      * @param Transfer $transfer
      */
     public function setOwner(Transfer $transfer)
@@ -23,8 +24,9 @@ class TransferingFile extends SimpleFile
     }
 
     /**
-     * Checks mimetypes and file extensions to be allowed to uploading
-     * @return boolean
+     * Checks mimetypes and file extensions to be allowed to uploading.
+     *
+     * @return bool
      */
     public function validate()
     {
@@ -36,27 +38,28 @@ class TransferingFile extends SimpleFile
 
     /**
      * Applies handler to the file. If something go wrong, returns false and
-     * writes details to log file if set
-     * 
-     * @param string $fname file destination name
+     * writes details to log file if set.
+     *
+     * @param string   $fname  file destination name
      * @param callable $action handler action
-     * @return boolean operation result
+     *
+     * @return bool operation result
      */
     public function handle($fname, $action)
     {
         try {
             $action($this, $fname);
         } catch (Exception $e) {
-            if(!is_null($this->_transfer->logFile)) {
+            if (!is_null($this->_transfer->logFile)) {
                 $f = fopen($this->_transfer->logFile, 'a');
-                fwrite($f, '[' . date('Y-m-d H:i:s') . '] in ' . $e->getFile()
-                    .  ' on line ' . $e->getLine() 
-                    . ': ' . $e->getMessage()
-                    . "\n" . $e->getTrace() . "\n\n"
+                fwrite($f, '['.date('Y-m-d H:i:s').'] in '.$e->getFile()
+                    .' on line '.$e->getLine()
+                    .': '.$e->getMessage()
+                    ."\n".$e->getTrace()."\n\n"
                 );
                 fclose($f);
             }
-                
+
             return false;
         }
 
@@ -64,8 +67,9 @@ class TransferingFile extends SimpleFile
     }
 
     /**
-     * Check if this file's mimetype is allowed
-     * @return boolean
+     * Check if this file's mimetype is allowed.
+     *
+     * @return bool
      */
     protected function checkMimeTypes()
     {
@@ -102,8 +106,9 @@ class TransferingFile extends SimpleFile
     }
 
     /**
-     * Checks if this file's extension is allowed
-     * @return boolean
+     * Checks if this file's extension is allowed.
+     *
+     * @return bool
      */
     protected function checkExtensions()
     {
