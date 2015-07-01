@@ -212,8 +212,8 @@ class Transfer
      * Starts file uploading.
      *
      * @param array  $files        $_FILES array
-     * @param string $subdir       subdirectory in the uploading files directory to
-     *                             separate uploading files each from other
+     * @param string $subdir       subdirectory in the uploading files directory
+     *                             to separate uploading files each from other
      * @param array  $userHandlers list of handlers names
      */
     public function upload(array $files, $subdir, array $userHandlers)
@@ -224,15 +224,16 @@ class Transfer
     /**
      * Returns file by it's ID.
      *
-     * @param string $id         file ID (filename created at upload operation)
-     * @param string $subdir     subdirectory in the uploading files directory to
-     *                           separate uploading files each from other
+     * @param string $code       file code (filename created at upload
+     *                           operation)
+     * @param string $subdir     subdirectory in the uploading files directory
+     *                           to separate uploading files by user defined
+     *                           types
      * @param string $handler    name of handler applied to file on uploading
-     * @param bool   $isAbsolute should paths be absolute or relative
      */
-    public function get($id, $subdir, $size, $isAbsolute = false)
+    public function get($code, $subdir, $handler)
     {
-        $this->getter->run($id, $subdir, $size, $isAbsolute);
+        $this->getter->run($code, $subdir, $handler);
     }
 
     /**

@@ -23,10 +23,8 @@ class GottenFile
     {
         $this->_transfer = $transfer;
 
-        if (!empty($url) && realpath($url)) {
+        if ((!empty($url) && realpath($url)) || $this->hasReplacement()) {
             $this->_url = $url;
-        } elseif (!$this->hasReplacement()) {
-            $this->_url = $this->_transfer->emptyFileReplacement;
         } else {
             throw new FileTransferException('Requested file does not exist');
         }
@@ -35,14 +33,27 @@ class GottenFile
     public function __get($name)
     {
         switch ($name) {
-            case 'relativeUrl':
-                return $this->_transfer->relativePath."/{$this->_url}";
-            case 'absoluteUrl':
-                return $this->_transfer->absolutePath."/{$this->_url}";
-            default:
+            case 'url': {
+                if($this->exists()) {
+                    return "{$this->_transfer->relativePath}/{$this->_url}";
+                } elseif ($this->hasReplacement()) {
+                    return "{$this->_transfer->relativePath}/{$this->_transfer->emptyFileReplacement}";
+                }
+            }
+            case 'absoluteUrl': {
+                if($this->exists()) {
+                    return "{$this->_transfer->absolutePath}/{$this->_url}";
+                } elseif ($this->hasReplacement()) {
+                    return "{$this->_transfer->absolutePath}/{$this->_transfer->emptyFileReplacement}";
+                }
+            }
+            default: {
                 throw new FileTransferException('Class `GottenFile` does not have'
                     ." property named `$name`");
+            }
         }
+        
+        return false;
     }
 
     /**
@@ -52,11 +63,7 @@ class GottenFile
      */
     public function exists()
     {
-        if ($this->hasReplacement()) {
-            return $this->_url !== $this->_transfer->emptyFileReplacement;
-        } else {
-            return !empty($this->_url);
-        }
+        return !empty($this->_url);
     }
 
     /**
