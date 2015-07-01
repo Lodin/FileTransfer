@@ -59,11 +59,21 @@ class GottenFile
     /**
      * Tests file to be exist.
      *
-     * @return bool
+     * @return boolean
      */
     public function exists()
     {
         return !empty($this->_url);
+    }
+    
+    /**
+     * Tests file to be placeholder instead of requested file
+     * 
+     * @return boolean
+     */
+    public function isPlaceholder()
+    {
+        return !$this->exists() && $this->hasReplacement();
     }
 
     /**
