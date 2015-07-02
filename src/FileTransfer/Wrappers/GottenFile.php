@@ -1,6 +1,6 @@
 <?php
 
-namespace FileTransfer\wrappers;
+namespace FileTransfer\Wrappers;
 
 use FileTransfer\Transfer;
 use FileTransfer\FileTransferException;
@@ -34,14 +34,14 @@ class GottenFile
     {
         switch ($name) {
             case 'url': {
-                if($this->exists()) {
+                if ($this->exists()) {
                     return "{$this->_transfer->relativePath}/{$this->_url}";
                 } elseif ($this->hasReplacement()) {
                     return "{$this->_transfer->relativePath}/{$this->_transfer->emptyFileReplacement}";
                 }
             }
             case 'absoluteUrl': {
-                if($this->exists()) {
+                if ($this->exists()) {
                     return "{$this->_transfer->absolutePath}/{$this->_url}";
                 } elseif ($this->hasReplacement()) {
                     return "{$this->_transfer->absolutePath}/{$this->_transfer->emptyFileReplacement}";
@@ -52,24 +52,24 @@ class GottenFile
                     ." property named `$name`");
             }
         }
-        
+
         return false;
     }
 
     /**
      * Tests file to be exist.
      *
-     * @return boolean
+     * @return bool
      */
     public function exists()
     {
         return !empty($this->_url);
     }
-    
+
     /**
-     * Tests file to be placeholder instead of requested file
-     * 
-     * @return boolean
+     * Tests file to be placeholder instead of requested file.
+     *
+     * @return bool
      */
     public function isPlaceholder()
     {
@@ -84,7 +84,7 @@ class GottenFile
     public function remove()
     {
         if ($this->exists()) {
-            ulink($this->absoluteUrl);
+            unlink($this->absoluteUrl);
         } else {
             throw new FileTransferException('No file to remove');
         }

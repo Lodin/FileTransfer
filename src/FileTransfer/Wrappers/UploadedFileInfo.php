@@ -1,6 +1,6 @@
 <?php
 
-namespace FileTransfer\wrappers;
+namespace FileTransfer\Wrappers;
 
 class UploadedFileInfo
 {

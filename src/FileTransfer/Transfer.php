@@ -1,6 +1,6 @@
 <?php
 
-namespace FileTrasfer;
+namespace FileTransfer;
 
 /**
  * Implements common file transfering functional.
@@ -94,7 +94,7 @@ class Transfer
      *
      * @throws FileTransferException if some parameters is not set
      */
-    public function __contstruct(array $settings)
+    public function __construct(array $settings)
     {
         if (isset($settings['absolutePath'])) {
             $this->absolutePath = $settings['absolutePath'];
@@ -169,8 +169,8 @@ class Transfer
 
         if (isset($settings['emptyFileReplacement'])
             && $this->emptyFileReplacement !== $settings['emptyFileReplacement']) {
-            if (!realpath($settings['emptyFileReplacement'])) {
-                throw new FileTransferException("File `{$settings['emptyFileReplacement']}`"
+            if (!realpath($this->absolutePath.'/'.$settings['emptyFileReplacement'])) {
+                throw new FileTransferException("File `{$this->absolutePath}/{$settings['emptyFileReplacement']}`"
                     .' does not exist');
             }
 
@@ -218,22 +218,38 @@ class Transfer
      */
     public function upload(array $files, $subdir, array $userHandlers)
     {
-        $this->uploader->run($files, $subdir, $userHandlers);
+        return $this->uploader->run($files, $subdir, $userHandlers);
     }
 
     /**
      * Returns file by it's ID.
      *
-     * @param string $code       file code (filename created at upload
-     *                           operation)
-     * @param string $subdir     subdirectory in the uploading files directory
-     *                           to separate uploading files by user defined
-     *                           types
-     * @param string $handler    name of handler applied to file on uploading
+     * @param string $code    file code (filename created at upload
+     *                        operation)
+     * @param string $subdir  subdirectory in the uploading files directory
+     *                        to separate uploading files by user defined
+     *                        types
+     * @param string $handler name of handler applied to file on uploading
      */
     public function get($code, $subdir, $handler)
     {
-        $this->getter->run($code, $subdir, $handler);
+        return $this->getter->run($code, $subdir, $handler);
+    }
+
+    /**
+     * Removes selected file.
+     *
+     * @param string $code    file code (filename created at upload
+     *                        operation)
+     * @param string $subdir  subdirectory in the uploading files directory
+     *                        to separate uploading files by user defined
+     *                        types
+     * @param string $handler name of handler applied to file on uploading
+     */
+    public function remove($code, $subdir, $handler)
+    {
+        $file = $this->get($code, $subdir, $handler);
+        $file->remove();
     }
 
     /**

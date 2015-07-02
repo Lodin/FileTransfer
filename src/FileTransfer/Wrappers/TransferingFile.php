@@ -1,6 +1,6 @@
 <?php
 
-namespace FileTransfer\wrappers;
+namespace FileTransfer\Wrappers;
 
 use FileTransfer\Transfer;
 use SimpleFile;
