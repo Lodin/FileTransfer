@@ -96,6 +96,6 @@ class GottenFile
      */
     protected function hasReplacement()
     {
-        return !is_null($this->_transfer->emptyFileReplacement);
+        return $this->_transfer->emptyFileReplacement !== null;
     }
 }

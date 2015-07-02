@@ -50,7 +50,7 @@ class TransferingFile extends SimpleFile
         try {
             $action($this, $fname);
         } catch (Exception $e) {
-            if (!is_null($this->_transfer->logFile)) {
+            if ($this->_transfer->logFile !== null) {
                 $f = fopen($this->_transfer->logFile, 'a');
                 fwrite($f, '['.date('Y-m-d H:i:s').'] in '.$e->getFile()
                     .' on line '.$e->getLine()
