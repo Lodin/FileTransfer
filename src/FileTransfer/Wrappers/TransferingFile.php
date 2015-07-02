@@ -5,6 +5,7 @@ namespace FileTransfer\Wrappers;
 use FileTransfer\Transfer;
 use SimpleFile;
 use MimeList;
+use finfo;
 
 /**
  * Implements wrapper around file uploading to server.

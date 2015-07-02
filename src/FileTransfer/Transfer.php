@@ -174,7 +174,7 @@ class Transfer
                     .' does not exist');
             }
 
-            $this->emptyFileReplacement = realpath($settings['emptyFileReplacement']);
+            $this->emptyFileReplacement = $settings['emptyFileReplacement'];
         }
 
         if (isset($settings['gottenFileClass'])) {

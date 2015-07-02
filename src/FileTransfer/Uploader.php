@@ -70,8 +70,8 @@ class Uploader
                 continue;
             }
 
-            $info[$file->id] = new UploadedFileInfo(
-                $this->subdir,
+            $info[] = new UploadedFileInfo(
+                $subdir,
                 basename($dir),
                 $filename,
                 pathinfo($file->name, PATHINFO_EXTENSION)
@@ -96,28 +96,6 @@ class Uploader
      */
     protected function buildPath($subdir)
     {
-        function countDir($dir)
-        {
-            return count(array_filter(
-                scandir($dir),
-                function ($file) use ($dir) {
-                    if ($file != '.' && $file != '..' && !is_dir($dir.$file)) {
-                        return $file;
-                    }
-                }
-             ));
-        }
-
-        function scanDir($dir)
-        {
-            return array_filter(
-                scandir($dir),
-                function ($element) {
-                    return ctype_digit(pathinfo($element, PATHINFO_FILENAME));
-                }
-             );
-        }
-
         $dir = $this->_transfer->absolutePath."/{$this->_transfer->dir}";
         $dir .= "/$subdir";
 
@@ -126,7 +104,9 @@ class Uploader
             chmod($dir, 0777);
         }
 
-        $folderlist = scanDir($dir);
+        $folderlist = array_filter(scandir($dir), function ($element) {
+            return ctype_digit(pathinfo($element, PATHINFO_FILENAME));
+        });
 
         if (empty($folderlist)) {
             $result = "$dir/0";
@@ -137,7 +117,14 @@ class Uploader
             $result = "$dir/".max($folderlist);
         }
 
-        if (countDir($result) >= $this->_transfer->filesInFolder) {
+        
+        $countDir = count(array_filter(scandir($dir), function ($file) use ($dir) {
+            if ($file != '.' && $file != '..' && !is_dir($dir.$file)) {
+                return $file;
+            }
+        }));
+        
+        if ($countDir >= $this->_transfer->filesInFolder) {
             $newDir = "$dir/".((int) basename($result) + 1);
             mkdir($newDir);
             chmod($newDir, 0777);
